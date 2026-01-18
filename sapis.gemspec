@@ -25,6 +25,7 @@ Gem::Specification.new do |spec|
   # Development dependencies
   spec.add_development_dependency 'rake', '~> 13.0'
   spec.add_development_dependency 'rspec', '~> 3.0'
+  spec.add_development_dependency 'rubocop', '~> 1.82.1'
 
   spec.metadata = {
     'source_code_uri' => 'https://github.com/saveriomiroddi/sapis',
