@@ -21,16 +21,13 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 require_relative 'bash_helper'
 
 module GnomeHelper
-
   include BashHelper
 
-  def set_gnome_background( pic_path )
+  def set_gnome_background(pic_path)
     simple_bash_execute "gconftool -t string -s /desktop/gnome/background/picture_filename", pic_path
   end
 
   def get_gnome_background_filename
     simple_bash_execute "gconftool -g /desktop/gnome/background/picture_filename"
   end
-
 end
-

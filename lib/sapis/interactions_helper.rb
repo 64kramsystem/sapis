@@ -19,11 +19,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
 module InteractionsHelper
-
   require 'highline/import'
 
-  def self.secure_ask( question='Insert password: ' )
-    HighLine.new.ask( question ) { | q | q.echo = '*' }
+  def self.secure_ask(question='Insert password: ')
+    HighLine.new.ask(question) { |q| q.echo = '*' }
   end
 
   # Asks a question, optionally using a default.
@@ -32,10 +31,10 @@ module InteractionsHelper
   #
   #  <header> [default]?
   #
-  def self.ask_entry( header, default=nil )
+  def self.ask_entry(header, default=nil)
     while true
-      print "#{ header }"
-      print " [#{ default }]" if default
+      print "#{header}"
+      print " [#{default}]" if default
       print "? "
 
       answer = STDIN.gets.chomp
@@ -67,32 +66,32 @@ module InteractionsHelper
   #                        If there are more matches and the pattern matches exactly one of
   #                        them, it's automatically chosen.
   #
-  def self.ask_entries_with_points( header, entries, options={} )
+  def self.ask_entries_with_points(header, entries, options={})
     raise ArgumentError.new("No entries passed! [#{header}]") if entries.empty?
 
-    default           = options[ :default ]
-    autochoose_if_one = options[ :autochoose_if_one ]
-    filtering_pattern = options[ :filter_by ]
+    default           = options[:default]
+    autochoose_if_one = options[:autochoose_if_one]
+    filtering_pattern = options[:filter_by]
 
-    raise "Pattern must be a String, Regexp is not supported" if filtering_pattern.is_a?( Regexp )
+    raise "Pattern must be a String, Regexp is not supported" if filtering_pattern.is_a?(Regexp)
 
     # Convert to Hash if it's an array
     #
-    if entries.is_a?( Array )
-      entries = ( 0 ... entries.size ).zip( entries )
+    if entries.is_a?(Array)
+      entries = (0 ... entries.size).zip(entries)
 
-      entries = entries.inject( {} ) do | current_entries, ( i, entry ) |
-        current_entries[ i.to_s ] = entry
+      entries = entries.inject({}) do |current_entries, (i, entry)|
+        current_entries[i.to_s] = entry
         current_entries
       end
     end
 
     if filtering_pattern
-      exact_matches = entries.select { | _, entry_value | entry_value.downcase == filtering_pattern.downcase }
+      exact_matches = entries.select { |_, entry_value| entry_value.downcase == filtering_pattern.downcase }
 
       return exact_matches.values.first if exact_matches.size == 1
 
-      entries = entries.select { | _, entry_value | entry_value.downcase.include?( filtering_pattern.downcase ) }
+      entries = entries.select { |_, entry_value| entry_value.downcase.include?(filtering_pattern.downcase) }
 
       raise ArgumentError.new("No entries after filtering! [#{header}, #{filtering_pattern}]") if entries.empty?
     end
@@ -102,20 +101,20 @@ module InteractionsHelper
     end
 
     while true
-      puts "#{ header }:"
+      puts "#{header}:"
 
-      entries.each do | point, entry |
-        print " #{ point }"
+      entries.each do |point, entry|
+        print " #{point}"
         print default.to_s == entry ? '*' : ')'
-        puts " #{ entry }"
+        puts " #{entry}"
       end
 
       answer = STDIN.gets.chomp
 
       if answer == '' && default
         break default
-      elsif entries.has_key?( answer )
-        break entries[ answer ]
+      elsif entries.has_key?(answer)
+        break entries[answer]
       end
     end
   end
@@ -124,13 +123,13 @@ module InteractionsHelper
   #
   #   header: entry_a,entry_b [default]?
   #
-  def self.ask_entries_in_line( header, entries, default=nil )
+  def self.ask_entries_in_line(header, entries, default=nil)
     while true
-      print "#{ header }: "
+      print "#{header}: "
 
-      print entries.join( ',' )
+      print entries.join(',')
 
-      print " [#{ default }]" if default
+      print " [#{default}]" if default
 
       print "? "
 
@@ -138,11 +137,9 @@ module InteractionsHelper
 
       if answer == '' && default
         break default
-      elsif entries.include?( answer )
+      elsif entries.include?(answer)
         break answer
       end
     end
   end
-
 end
-

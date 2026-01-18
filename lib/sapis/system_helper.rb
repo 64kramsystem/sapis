@@ -18,10 +18,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 =end
 
-require File.expand_path( '../bash_helper.rb', __FILE__ )
+require File.expand_path('../bash_helper.rb', __FILE__)
 
 module SystemHelper
-
   require 'shellwords'
 
   SystemHelper::SEARCH_FILES       = 'f'
@@ -35,13 +34,13 @@ module SystemHelper
 
   def self.current_timezone
     if mac?
-      `systemsetup -gettimezone`.strip.sub( 'Time Zone: ', '' )
+      `systemsetup -gettimezone`.strip.sub('Time Zone: ', '')
     else
-      IO.read( '/etc/timezone' ).chomp
+      IO.read('/etc/timezone').chomp
     end
   end
 
-  def self.symlink( source, destination )
+  def self.symlink(source, destination)
     # Doesn't work! At least one bug in the library:
     # - File.exists? returns false if a symlink exists, but points to a non-existent file
     # - symlink causes an abrupt exit if the destination exists
@@ -56,54 +55,54 @@ module SystemHelper
   # 'mountpoint' has inconsistent exit behavior, because if the path is not a mountpoint,
   # it returns 1, but prints the message to stdout.
   #
-  def unmount_base_mountpoint( filename )
+  def unmount_base_mountpoint(filename)
     while filename != '/'
-      is_mountpoint = `mountpoint #{ encode_bash_filenames( filename ) }` =~ /is a mountpoint\n$/
+      is_mountpoint = `mountpoint #{encode_bash_filenames(filename)}` =~ /is a mountpoint\n$/
 
       if is_mountpoint
         simple_bash_execute "umount", filename
         return
       end
 
-      filename = File.dirname( filename )
+      filename = File.dirname(filename)
     end
 
-    raise "Couldn't find base mount point for file: #{ filename }"
+    raise "Couldn't find base mount point for file: #{filename}"
   end
 
   def system_cores_number
     if RUBY_PLATFORM =~ /darwin/i
       raw_result = safe_execute "system_profiler SPHardwareDataType | grep 'Total Number Of Cores'"
-      raw_result[ /: (\d+)/, 1 ].to_i
+      raw_result[/: (\d+)/, 1].to_i
     else
       # See https://www.ibm.com/developerworks/community/blogs/brian/entry/linux_show_the_number_of_cpu_cores_on_your_system17?lang=en
       # Bash form:
       #
       #   cat /proc/cpuinfo | egrep "core id|physical id" | tr -d "\n" | sed s/physical/\\nphysical/g | grep -v ^$ | sort | uniq | wc -l
       #
-      IO.readlines( '/proc/cpuinfo' ).grep( /core id|physical id/ ).each_slice( 2 ).to_a.uniq.size
+      IO.readlines('/proc/cpuinfo').grep(/core id|physical id/).each_slice(2).to_a.uniq.size
     end
   end
 
-  def unrar( file, options={} )
-    delete = !! options[ :delete ]
+  def unrar(file, options={})
+    delete = !!options[:delete]
 
     original_dir    = Dir.pwd
-    destination_dir = File.dirname( file )
+    destination_dir = File.dirname(file)
 
-    Dir.chdir( destination_dir )
+    Dir.chdir(destination_dir)
 
     simple_bash_execute "unrar x", file
 
-    File.delete( file ) if delete
+    File.delete(file) if delete
   ensure
-    Dir.chdir( original_dir )
+    Dir.chdir(original_dir)
   end
 
   # Opens :filename using the default executable.
   #
-  def self.open_file( filename )
-    `xdg-open #{ filename.shellescape }`
+  def self.open_file(filename)
+    `xdg-open #{filename.shellescape}`
   end
 
   # Case insensitive search
@@ -112,11 +111,11 @@ module SystemHelper
   #   :file_type:  [nil] either SEARCH_FILES or SEARCH_DIRECTORIES, or nil for both.
   #   :skip_paths: [nil] array of (full) paths to skip
   #
-  def self.find_files( raw_pattern, raw_search_paths, options={} )
-    search_paths = raw_search_paths.map { | path | path.shellescape }.join( ' ' )
+  def self.find_files(raw_pattern, raw_search_paths, options={})
+    search_paths = raw_search_paths.map { |path| path.shellescape }.join(' ')
     pattern      = raw_pattern.shellescape
 
-    case options[ :file_type ]
+    case options[:file_type]
     when SEARCH_FILES
       file_type = '-type f'
     when SEARCH_DIRECTORIES
@@ -124,18 +123,16 @@ module SystemHelper
     when nil
       # nothing
     else
-      raise "Unrecognized :file_type option for find_files: #{ options[ :file_type ] }"
+      raise "Unrecognized :file_type option for find_files: #{options[:file_type]}"
     end
 
-    skip_paths = options[ :skip_paths ].to_a.map do | path |
-      path_with_pattern = File.join( path, '*' )
+    skip_paths = options[:skip_paths].to_a.map do |path|
+      path_with_pattern = File.join(path, '*')
       " -not -path " + path_with_pattern.shellescape
-    end.join( ' ' )
+    end.join(' ')
 
-    raw_result = `find #{ search_paths } -iname #{ pattern } #{ file_type } #{ skip_paths }`.chomp
+    raw_result = `find #{search_paths} -iname #{pattern} #{file_type} #{skip_paths}`.chomp
 
-    raw_result.split( "\n" )
+    raw_result.split("\n")
   end
-
 end
-

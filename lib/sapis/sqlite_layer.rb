@@ -27,12 +27,12 @@ class Rollback < StandardError; end
 class SQLiteLayer
   attr_reader :db
 
-  def initialize( filename, options={} )
-    absolute_db_filename = options[ :relative ] ? File.expand_path( filename, '~' ) : filename
+  def initialize(filename, options={})
+    absolute_db_filename = options[:relative] ? File.expand_path(filename, '~') : filename
 
-    @db = SQLite3::Database.new( absolute_db_filename )
+    @db = SQLite3::Database.new(absolute_db_filename)
 
-    @db.execute( 'PRAGMA foreign_keys = ON' )
+    @db.execute('PRAGMA foreign_keys = ON')
   end
 
   # values: Can be either an array of values, or a hash field=>value.
@@ -45,8 +45,8 @@ class SQLiteLayer
   #                           values are not automatically escaped or quoted.
   #                           this makes sense for some edge cases.
   #
-  def insert_values( table, values, options={} )
-    straight_insert = options[ :straight_insert ] || {}
+  def insert_values(table, values, options={})
+    straight_insert = options[:straight_insert] || {}
 
     sql_fields       = []
     sql_placeholders = []
@@ -54,97 +54,97 @@ class SQLiteLayer
 
     case values
     when Hash
-      values.each do | field, value |
+      values.each do |field, value|
         sql_fields       << field.to_s
         sql_placeholders << '?'
         sql_values       <<  value
       end
     when Array
-      values.each do | value |
+      values.each do |value|
         sql_placeholders << '?'
         sql_values       <<  value
       end
     else
-      raise "Invalid values class: #{ values.class }"
+      raise "Invalid values class: #{values.class}"
     end
 
-    straight_insert.each do | field, value |
+    straight_insert.each do |field, value|
       sql_fields       << field.to_s
       sql_placeholders << value
     end
 
-    sql_values.each_with_index do | value, i |
-      sql_values[ i ] = SQLite3::Blob.new( value.first ) if value.is_a?( Array )
+    sql_values.each_with_index do |value, i|
+      sql_values[i] = SQLite3::Blob.new(value.first) if value.is_a?(Array)
     end
 
-    sql = "INSERT INTO #{ table }"
-    sql << "( #{ sql_fields.join(', ') } )" if sql_fields.size > 0
-    sql << " VALUES( #{ sql_placeholders.join(', ') } )"
+    sql = "INSERT INTO #{table}"
+    sql << "( #{sql_fields.join(', ')} )" if sql_fields.size > 0
+    sql << " VALUES( #{sql_placeholders.join(', ')} )"
 
-    @db.execute( sql, sql_values )
+    @db.execute(sql, sql_values)
 
     @db.last_insert_row_id
   end
 
   # values:   the :where key is the where condition
   #
-  def update_values( table, values )
-    where_sql = values.delete( :where ) || 'TRUE'
+  def update_values(table, values)
+    where_sql = values.delete(:where) || 'TRUE'
 
-    set_sql, set_values = values.inject( [ "", [] ] ) do | ( current_set_sql, current_set_values ), ( column, value ) |
+    set_sql, set_values = values.inject(["", []]) do |(current_set_sql, current_set_values), (column, value)|
       current_set_sql << ', ' if current_set_sql != ''
-      current_set_sql << "#{ column } = ?"
+      current_set_sql << "#{column} = ?"
       current_set_values << value
-      [ current_set_sql, current_set_values ]
+      [current_set_sql, current_set_values]
     end
 
-    @db.execute( "UPDATE #{ table } SET #{ set_sql } WHERE #{ where_sql }", set_values )
+    @db.execute("UPDATE #{table} SET #{set_sql} WHERE #{where_sql}", set_values)
   end
 
-  def execute( sql, *params )
-    @db.execute( sql, params )
+  def execute(sql, *params)
+    @db.execute(sql, params)
   end
 
-  def select( sql, *params )
-    options = params.last.is_a?( Hash ) ? params.pop : {}
-    execute( sql, *params )
+  def select(sql, *params)
+    options = params.last.is_a?(Hash) ? params.pop : {}
+    execute(sql, *params)
   end
 
   # params:    the last can be :options
   # options:
   #   :force:  force finding a value
   #
-  def select_value( sql, *params )
-    options = params.last.is_a?( Hash ) ? params.pop : {}
+  def select_value(sql, *params)
+    options = params.last.is_a?(Hash) ? params.pop : {}
 
-    row = execute( sql, *params ).first
+    row = execute(sql, *params).first
 
     value = row && row.first
 
     if value
       value
-    elsif options[ :force ]
+    elsif options[:force]
       raise "Value not found!"
     end
   end
 
-  def select_all( sql, *params )
-    column_names, *raw_data = select_with_headers( sql, *params )
+  def select_all(sql, *params)
+    column_names, *raw_data = select_with_headers(sql, *params)
 
-    raw_data.map do | row |
-      Hash[ column_names.zip( row ) ]
+    raw_data.map do |row|
+      Hash[column_names.zip(row)]
     end
   end
 
   # This is a :select_row with headers as first row.
   #
-  def select_with_headers( sql, *params )
-    @db.execute2( sql, params )
+  def select_with_headers(sql, *params)
+    @db.execute2(sql, params)
   end
 
   # Can be nested - only the outer call with start a transaction.
   #
-  def transaction( commit=true, &block )
+  def transaction(commit=true, &block)
     if @db.transaction_active?
       yield
     else
@@ -162,5 +162,4 @@ class SQLiteLayer
   def close
     @db.close
   end
-
 end

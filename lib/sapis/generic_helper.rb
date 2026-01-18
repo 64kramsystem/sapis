@@ -23,7 +23,7 @@ require 'date'
 module GenericHelper
   def self.do_retry(options={}, &block)
     max_retries    = options[:max_retries] || 3
-    sleep_interval = options[:sleep      ] || 0
+    sleep_interval = options[:sleep] || 0
 
     current_retries = 0
 
@@ -47,7 +47,7 @@ module GenericHelper
     buffer          = ""
     capitalize_next = true
 
-    string.chars.each do | char |
+    string.chars.each do |char|
       if char == '_'
         capitalize_next = true
       elsif capitalize_next
@@ -118,7 +118,7 @@ module GenericHelper
     when /^-(\d+)$/
       Date.today - $1.to_i
     else
-      raise "Unrecognized date: #{ encoded_date }"
+      raise "Unrecognized date: #{encoded_date}"
     end
  end
 
@@ -162,7 +162,7 @@ module GenericHelper
       daytime.unshift(current_token)
     end
 
-    raise "Wrong start year format. Non-consumed tokens: #{ daytime }" if base_day.nil?
+    raise "Wrong start year format. Non-consumed tokens: #{daytime}" if base_day.nil?
 
     current_token = daytime.shift
 
@@ -187,7 +187,7 @@ module GenericHelper
       daytime.unshift(current_token)
     end
 
-    raise "Wrong start daytime format. Non-consumed tokens: #{ daytime }" if start_daytime.nil?
+    raise "Wrong start daytime format. Non-consumed tokens: #{daytime}" if start_daytime.nil?
 
     current_token = daytime.shift
 
@@ -223,9 +223,9 @@ module GenericHelper
       end_daytime = add_days(start_daytime, 1)
     end
 
-    raise "Wrong end daytime format. Non-consumed tokens: #{ daytime }" if end_daytime.nil?
+    raise "Wrong end daytime format. Non-consumed tokens: #{daytime}" if end_daytime.nil?
 
-    raise "Non-consumed tokens found: #{ daytime }" if daytime.size > 0
+    raise "Non-consumed tokens found: #{daytime}" if daytime.size > 0
 
     [start_daytime, end_daytime, all_day]
   end

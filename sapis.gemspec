@@ -13,8 +13,8 @@ Gem::Specification.new do |spec|
 
   spec.required_ruby_version = '>= 2.6.0'
 
-  spec.files = Dir[ 'lib/**/*.rb' ] + [ 'README.md' ]
-  spec.require_paths = [ 'lib' ]
+  spec.files = Dir['lib/**/*.rb'] + ['README.md']
+  spec.require_paths = ['lib']
 
   # Runtime dependencies
   spec.add_dependency 'gruff', '~> 0.7'
@@ -29,6 +29,6 @@ Gem::Specification.new do |spec|
 
   spec.metadata = {
     'source_code_uri' => 'https://github.com/saveriomiroddi/sapis',
-    'bug_tracker_uri' => 'https://github.com/saveriomiroddi/sapis/issues'
+    'bug_tracker_uri' => 'https://github.com/saveriomiroddi/sapis/issues',
   }
 end

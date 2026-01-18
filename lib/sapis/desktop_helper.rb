@@ -24,27 +24,25 @@ require 'shellwords'
 module DesktopHelper
   CLIPBOARD_COMMAND = "xi"
 
-  def set_clipboard_text( text )
-    IO.popen(CLIPBOARD_COMMAND, 'w' ) { | io | io << text }
+  def set_clipboard_text(text)
+    IO.popen(CLIPBOARD_COMMAND, 'w') { |io| io << text }
   end
 
   # Displays an OK/Cancel dialog.
   #
   # Returns true for OK, false for Cancel/Esc.
   #
-  def display_dialog( text )
-    quoted_text = '"' + text.gsub( '"', '\"' ).gsub( "'", "'\\\\''" ) + '"'
+  def display_dialog(text)
+    quoted_text = '"' + text.gsub('"', '\"').gsub("'", "'\\\\''") + '"'
 
     if SystemHelper.mac?
-      `osascript -e 'tell app "System Events" to display dialog #{ quoted_text }'`.strip == 'button returned:OK'
+      `osascript -e 'tell app "System Events" to display dialog #{quoted_text}'`.strip == 'button returned:OK'
     else
-      system( "zenity --question --text=#{ quoted_text }" )
+      system("zenity --question --text=#{quoted_text}")
     end
   end
 
   def desktop_notification(text)
     `notify-send #{text.shellescape}`
   end
-
 end
-

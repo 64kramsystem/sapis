@@ -19,7 +19,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 =end
 
 module ConcurrencyHelper
-
   require 'thread'
 
   # Parallel working, constrained on the number of threads.
@@ -48,15 +47,14 @@ module ConcurrencyHelper
   # The semaphore is a generic semaphore; it can be used for example to lock when printing information to stdout.
   #
   class ParallelWorkersQueue
+    def initialize(slots, options={})
+      abort_on_exception = !options.has_key?(:abort_on_exception) || options[:abort_on_exception]
 
-    def initialize( slots, options={} )
-      abort_on_exception = ! options.has_key?( :abort_on_exception ) || options[ :abort_on_exception ]
-
-      @queue = SizedQueue.new( slots )
+      @queue = SizedQueue.new(slots)
 
       @threads = slots.times.map do
         Thread.new do
-          while ( data = @queue.pop ) != :stop
+          while (data = @queue.pop) != :stop
             data[]
           end
         end
@@ -65,40 +63,38 @@ module ConcurrencyHelper
       Thread.abort_on_exception = abort_on_exception
     end
 
-    def push( &task )
-      @queue.push( task )
+    def push(&task)
+      @queue.push(task)
     end
 
     def join
       @threads.each do
-        @queue.push( :stop )
+        @queue.push(:stop)
       end
 
-      @threads.each( &:join )
+      @threads.each(&:join)
     end
-
   end
 
-  def self.with_parallel_queue( slots, options={} )
-    instances          = options[ :instances          ]
-    abort_on_exception = options[ :abort_on_exception ]
+  def self.with_parallel_queue(slots, options={})
+    instances          = options[:instances]
+    abort_on_exception = options[:abort_on_exception]
 
-    queue     = ParallelWorkersQueue.new( slots, :abort_on_exception => abort_on_exception )
+    queue     = ParallelWorkersQueue.new(slots, :abort_on_exception => abort_on_exception)
     semaphore = Mutex.new
 
     if instances
-      instances.each do | instance |
-        proc = yield( instance, semaphore )
+      instances.each do |instance|
+        proc = yield(instance, semaphore)
 
-        raise "The value returned is not a Proc!" unless proc.is_a?( Proc )
+        raise "The value returned is not a Proc!" unless proc.is_a?(Proc)
 
-        queue.push( &proc )
+        queue.push(&proc)
       end
     else
-      yield( queue, semaphore )
+      yield(queue, semaphore)
     end
 
     queue.join
   end
-
 end
