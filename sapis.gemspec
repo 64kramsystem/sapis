@@ -10,6 +10,7 @@ Gem::Specification.new do |spec|
   spec.description   = 'A collection of utility helpers for Ruby including graphing, configuration management, concurrency, system operations, multimedia handling, and more.'
   spec.homepage      = 'https://github.com/saveriomiroddi/sapis'
   spec.license       = 'GPL-3.0'
+  spec.date          = "2026-01-19"
 
   spec.required_ruby_version = '>= 2.6.0'
 
