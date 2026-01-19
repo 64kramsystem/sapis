@@ -160,7 +160,7 @@ db.close
 - gruff (~> 0.7) - For graphing functionality
 - parseconfig (~> 1.0) - For configuration file parsing
 - highline (~> 2.0) - For secure command-line input
-- sqlite3 (~> 1.4) - For SQLite database operations
+- sqlite3 (~> 2.9) - For SQLite database operations
 
 ## Development
 
