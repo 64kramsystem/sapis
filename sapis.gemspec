@@ -20,7 +20,7 @@ Gem::Specification.new do |spec|
   # Runtime dependencies
   spec.add_dependency 'gruff', '~> 0.7'
   spec.add_dependency 'parseconfig', '~> 1.0'
-  spec.add_dependency 'highline', '~> 2.0'
+  spec.add_dependency 'highline', '~> 3.1.2'
   spec.add_dependency 'sqlite3', '~> 2.9.0'
 
   # Development dependencies
