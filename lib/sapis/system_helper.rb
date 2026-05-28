@@ -102,7 +102,8 @@ module SystemHelper
   # Opens :filename using the default executable.
   #
   def self.open_file(filename)
-    `xdg-open #{filename.shellescape}`
+    opener = mac? ? 'open' : 'xdg-open'
+    `#{opener} #{filename.shellescape}`
   end
 
   # Case insensitive search
